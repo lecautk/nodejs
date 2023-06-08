@@ -1,0 +1,30 @@
+{
+  "name": "get_truyen_server",
+  "version": "1.0.0",
+  "description": "Server nodejs get truyen",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lecautk/nodejs.git"
+  },
+  "author": "CaoCau",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lecautk/nodejs/issues"
+  },
+  "homepage": "https://github.com/lecautk/nodejs#readme",
+  "dependencies": {
+    "axios": "^1.4.0",
+    "cheerio": "^1.0.0-rc.12",
+    "express": "^4.18.2",
+    "jsdom": "^22.1.0",
+    "mongodb": "^5.6.0",
+    "mongoose": "^7.2.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
