@@ -1,1 +1,0 @@
-const stringData = `https://truyenfull.vn/`
