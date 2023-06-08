@@ -12,7 +12,7 @@ connectDB();
 app.use(express.json());
 
 // Use dataRoutes
-app.use('/data', dataRoutes);
+app.use('/', dataRoutes);
 
 // Start the server
 app.listen(port, () => {
