@@ -18,16 +18,15 @@ exports.getData = async (req, res) => {
 
 exports.crawlData = async (req, res) => {
   try {
-    const response = await axios.get(stringData);
+    const response = await axios.get(`https://truyenfull.vn`);
     const $ = cheerio.load(response.data);
-    const items = $('.title-list > .row > .col-md-4');
+    const items = $("h3[itemprop='name'] a");
     const dataList = [];
     console.log('items',items)
-
     items.each((index, element) => {
-      const category = $(element).find('.list-cat > a').text().trim();
-      const title = $(element).find('.truyen-title > a').text().trim();
-      const url = $(element).find('.truyen-title > a').attr('href');
+      const category = $(element).text().trim();
+      const title = $(element).text().trim();
+      const url = $(element).attr('href');
 
       dataList.push({
         category,
@@ -51,7 +50,7 @@ exports.crawlData = async (req, res) => {
 
 exports.getTruyen = async (req, res) => {
     try {
-      const response = await axios.get(stringData);
+      const response = await axios.get(`https://truyenfull.vn`);
       const data = response.data;
       const dom = new JSDOM(data);
       const document = dom.window.document;
