@@ -3,9 +3,9 @@ const cheerio = require('cheerio');
 const Story = require('../models/stories.models');
 const Chapter = require('../models/chapters.models');
 
-async function getLastPage() {
+async function getLastPage(url) {
   try {
-    const response = await axios.get('https://truyenfull.vn/danh-sach/truyen-hot');
+    const response = await axios.get(url);
     const $ = cheerio.load(response.data);
     const elements = $('.pagination li a');
     let lastHref = '';
@@ -39,7 +39,7 @@ async function getChapterContent(chapterUrl) {
 exports.crawlData = async (req, res) => {
   try {
     const maxPagesToCrawl = 2; // Maximum number of pages to crawl
-    const pageNumber = await getLastPage();
+    const pageNumber = await getLastPage(`https://truyenfull.vn/danh-sach/truyen-hot`);
     const pagesToCrawl = Math.min(pageNumber, maxPagesToCrawl);
 
     const storyList = [];
@@ -87,6 +87,15 @@ exports.crawlData = async (req, res) => {
 
         // Crawling chapter data of the story
         const chapterElements = story$(".list-chapter li");
+
+
+        const urlGetChapter = `https://truyenfull.vn/danh-sach/truyen-hot/trang-${pageNumber}`;
+        const urlResponse = await axios.get(urlGetChapter);
+        const urlResponse$ = cheerio.load(urlResponse.data);
+        const urlChapterElements = urlResponse$(".row >div:last-child .list-chapter li:last-child");
+        console.log(urlChapterElements.text().trim());
+
+        
         for (let chapterIndex = 0; chapterIndex < chapterElements.length; chapterIndex++) {
           const chapterElement = chapterElements.eq(chapterIndex);
 
@@ -96,12 +105,12 @@ exports.crawlData = async (req, res) => {
           const chapterUrl = chapterTitleElement.attr('href');
           const chapterContent = await getChapterContent(chapterUrl);
 
-
           // Create a Chapter object using the Chapter model
           const chapter = new Chapter({
             title: chapterTitle || '',
             content: chapterContent || '',
             chapter_url: chapterUrl || '',
+            chapter_number: ''
           });
 
           // Add the chapter to the list of chapters of the Story
