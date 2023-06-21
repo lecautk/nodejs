@@ -1,4 +1,5 @@
 const express = require('express');
+require('dotenv').config();
 const connectDB = require('./src/db/connect');
 const dataRoutes = require('./src/routes/data.routes');
 
