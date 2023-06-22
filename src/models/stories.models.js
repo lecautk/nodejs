@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+
 const storySchema = new mongoose.Schema({
   title: {
     type: String,
@@ -10,6 +11,9 @@ const storySchema = new mongoose.Schema({
   },
   isFull: {
     type: Boolean
+  },
+  chapterNumber: {
+    type: Number
   },
   chapters: [{
     type: Schema.Types.ObjectId,

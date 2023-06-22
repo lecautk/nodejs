@@ -6,6 +6,7 @@ const Chapter = require('../models/chapters.models');
 async function getLastPage(url) {
   try {
     const response = await axios.get(url);
+    if(response.data){
     const $ = cheerio.load(response.data);
     const elements = $('.pagination li a');
     let lastHref = '';
@@ -18,6 +19,7 @@ async function getLastPage(url) {
     });
     const pageNumber = lastHref.match(/trang-(\d+)\//)[1];
     return pageNumber;
+  }
   } catch (error) {
     console.error('Error:', error);
     throw error;
@@ -42,6 +44,7 @@ exports.crawlData = async (req, res) => {
     const pageNumber = await getLastPage(`https://truyenfull.vn/danh-sach/truyen-hot`);
     const pagesToCrawl = Math.min(pageNumber, maxPagesToCrawl);
 
+
     const storyList = [];
 
     for (let page = 1; page <= pagesToCrawl; page++) {
@@ -51,8 +54,10 @@ exports.crawlData = async (req, res) => {
       const response = await axios.get(url);
       const $ = cheerio.load(response.data);
 
-      // Get the list of elements containing story information
-      const itemAll = $('.col-truyen-main .list-truyen .row');
+      
+      // Get Count Chapter in Story
+        // Get the list of elements containing story information
+        const itemAll = $('.col-truyen-main .list-truyen .row');
 
       // Iterate over each element
       for (let index = 0; index < itemAll.length; index++) {
@@ -65,6 +70,20 @@ exports.crawlData = async (req, res) => {
         const isFull = element.find('.label-full').length > 0;
         const imgTag = element.find('.col-xs-3 img.cover').attr('data-src') || element.find('.col-xs-3 img.cover').attr('src') || '';
 
+
+        // Get NUMBER CHAPTER
+          const pageNumberChapter = await getLastPage(storyUrl)
+          const urlLastChapter = `${storyUrl}trang-${pageNumberChapter}`;
+          const responseLastChapter = await axios.get(urlLastChapter);
+          let chapterCount = 0;
+          if(responseLastChapter.data){
+            const lastChapter$ = cheerio.load(responseLastChapter.data);
+            const itemChapter = lastChapter$('#list-chapter');
+            const numberOfChapters = itemChapter.find('.row >div:last-child > .list-chapter li:last-child').text().trim() ? itemChapter.find('.row >div:last-child > .list-chapter li:last-child').text().trim() : itemChapter.find('.row >div:not(:last-child) > .list-chapter li:last-child');
+            const chapterNumber = parseInt(numberOfChapters.match(/Chương (\d+)/)[1])
+            return chapterCount =  chapterNumber
+          }
+
         if (isFull) {
           continue;
         }
@@ -75,6 +94,7 @@ exports.crawlData = async (req, res) => {
           url: storyUrl || '',
           isFull: isFull,
           chapters: [],
+          chapterNumber: chapterCount,
           cover_image: imgTag || '',
         });
 
@@ -88,14 +108,6 @@ exports.crawlData = async (req, res) => {
         // Crawling chapter data of the story
         const chapterElements = story$(".list-chapter li");
 
-
-        const urlGetChapter = `https://truyenfull.vn/danh-sach/truyen-hot/trang-${pageNumber}`;
-        const urlResponse = await axios.get(urlGetChapter);
-        const urlResponse$ = cheerio.load(urlResponse.data);
-        const urlChapterElements = urlResponse$(".row >div:last-child .list-chapter li:last-child");
-        console.log(urlChapterElements.text().trim());
-
-        
         for (let chapterIndex = 0; chapterIndex < chapterElements.length; chapterIndex++) {
           const chapterElement = chapterElements.eq(chapterIndex);
 
@@ -110,7 +122,6 @@ exports.crawlData = async (req, res) => {
             title: chapterTitle || '',
             content: chapterContent || '',
             chapter_url: chapterUrl || '',
-            chapter_number: ''
           });
 
           // Add the chapter to the list of chapters of the Story
