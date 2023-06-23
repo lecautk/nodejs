@@ -1,12 +1,14 @@
 const mongoose = require('mongoose');
 const PASSWORD = process.env.PASSWORD;
 const DB_USERNAME = process.env.DB_USERNAME;
+// const connectString = `mongodb://localhost:27017/`;
 const connectString = `mongodb+srv://vnsdrking:${PASSWORD}@vnsdrking.1bmd9om.mongodb.net/${DB_USERNAME}`;
 const connectDB = async () => {
   try {
     await mongoose.connect(connectString, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      
     });
     console.log('Connected to the database ' + DB_USERNAME);
   } catch (error) {

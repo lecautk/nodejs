@@ -13,7 +13,7 @@ const storySchema = new mongoose.Schema({
     type: Boolean
   },
   chapterNumber: {
-    type: Number
+    type: String
   },
   chapters: [{
     type: Schema.Types.ObjectId,
